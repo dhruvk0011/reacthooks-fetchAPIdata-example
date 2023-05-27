@@ -1,0 +1,158 @@
+                    // useState //
+  const [items, setItems] = useState([]);
+  const addItem = () => {
+    // not overwritting, but appending value to existing array.
+    setItems([
+      ...items,
+      {
+        id: items.length,
+        value: Math.floor(Math.random() * 10) + 1,
+      },
+    ]);
+  };
+  return (
+    <div className='App'>
+      <button onClick={addItem}>Add a number</button>
+      <ul>
+        {items.map((it) => (
+          <li key={it.id}>{it.value}</li>
+        ))}
+      </ul>
+    </div>
+  );
+
+                    // useEffect // 
+  const [count, setCount] = useState(0);
+  const [name, setName] = useState("");
+
+  /* called after every single render
+  useEffect(() => {
+    console.log("useEffect - updating document title");
+    document.title = `You clicked ${count} times`;
+  });*/
+  
+  useEffect(() => {
+    console.log("useEffect - updating document title");
+    document.title = `You clicked ${count} times`;
+  },[count]);
+  // effect runs when values in array changes
+  
+  return (
+    <div className='App'>
+      <input
+        type='text'
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <button onClick={() => setCount((p) => p + 1)}>
+        Clicked {count} times
+      </button>
+      <button onClick={() => setCount(0)}>
+        Resetting
+      </button>
+    </div>
+  );
+
+// example two, useEffect runs only once, like componentDidMount().
+  const [x, setX] = useState(0);
+  const [y, setY] = useState(0);
+  const logMousePosition = (e) => {
+    console.log("mosue event");
+    setX(e.clientX);
+    setY(e.clientY);
+  };
+  useEffect(() => {
+    console.log("useEffect called");
+    window.addEventListener("mousemove", logMousePosition);
+  }, []);
+  // effect runs when values in array changes, so here no value, so renders only once
+  return (
+    <div className='App'>
+      <p> Hook x - {x}, y - {y} </p>
+    </div>
+  );
+
+// example 3 - fetch specific post data from endpoint using useEffect
+const [idfrombutton, setIdfrombutton] = useState(1);
+  const [post, setPost] = useState([]);
+  const [id, setId] = useState(1);
+  useEffect(() => {
+    //instead of fetch
+    axios
+      .get(`https://jsonplaceholder.typicode.com/posts/${idfrombutton}`)
+      .then((res) => {
+        console.log(res);
+        setPost(res.data);
+      })
+      .catch((err) => console.log(err));
+  }, [idfrombutton]);
+
+  const handleClick = () => setIdfrombutton(id);
+  return (
+    <div>
+      <input type='number' value={id} onChange={(e) => setId(e.target.value)} />
+      <button type='button' onClick={handleClick}>
+        Fetch Post
+      </button>
+      <p>{post.title}</p>
+    </div>
+  );
+
+                    // useContext //
+// child.jsx
+import { useContext } from "react";
+import { ChannelContext, UserContext } from "./App";
+function Child() {
+  const user = useContext(UserContext);
+  const channel = useContext(ChannelContext);
+  return (
+    <div>
+      {user} - {channel}
+    </div>
+  );
+}
+
+// App.jsx
+export const UserContext = React.createContext();
+export const ChannelContext = React.createContext();
+function App() {
+  return (
+    <div className='App'>
+      <UserContext.Provider value={"Dhruv"}>
+        <ChannelContext.Provider value={"DaveK"}>
+          <Child />
+        </ChannelContext.Provider>
+      </UserContext.Provider>
+    </div>
+  );
+}
+
+                    // useReducer //
+// single output value for 3 diff states here.
+const initialState = 0;
+// action -- instruction to what to be done
+const reducer = (curState, action) => {
+  switch (action) {
+    case "increment":
+      return curState + 1;
+    case "decrement":
+      return curState - 1;
+    case "reset":
+      return 0;
+    default:
+      return curState;
+  }
+};
+function App() {
+  const [count, dispatch] = useReducer(reducer, initialState);
+  return (
+    <div className='App'>
+      <h3> Count - {count} </h3>
+      <button onClick={() => dispatch("increment")}>Increment</button>
+      <button onClick={() => dispatch("decrement")}>Decrement</button>
+      <button onClick={() => dispatch("reset")}>Reset</button>
+    </div>
+  );
+}
+
+// example 2 - handling api data using reducer
