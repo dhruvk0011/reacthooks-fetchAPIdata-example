@@ -5,6 +5,9 @@
   text-align: center;
   color: whitesmoke;
 }
+div {
+  margin: 1%;
+}
 button {
   border: none;
   margin-left: 2px;
